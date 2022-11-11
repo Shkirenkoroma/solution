@@ -1,2 +1,2 @@
-# https://shkirenkoroma.github.io/solutionTask/
+# https://shkirenkoroma.github.io/solution/
 
