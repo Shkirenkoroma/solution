@@ -6,139 +6,137 @@ import Row from "./rows/row";
 import * as S from "./table.styles";
 
 const Table = ({ searchValue }) => {
-	const [isLoading, setIsLoading] = useState(false);
-	const [initialUsers, setInitialUsers] = useState([]);
-	const [filteredUsers, setFilteredUsers] = useState([]);
-	const [sortField, setSortField] = useState("");
-	const [order, setOrder] = useState(DEFAULT);
+  const [isLoading, setIsLoading] = useState(false);
+  const [initialUsers, setInitialUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [sortField, setSortField] = useState("");
+  const [order, setOrder] = useState(DEFAULT);
 
-	useEffect(() => {
-		getUsers();
-	}, []);
+  useEffect(() => {
+    getUsers();
+  }, []);
 
-	useEffect(() => {
-		setFilteredUsers(getFilteredUsers());
-		setOrder(DEFAULT);
-	}, [searchValue]);
+  useEffect(() => {
+    setFilteredUsers(getFilteredUsers());
+    setOrder(DEFAULT);
+  }, [searchValue]);
 
-	const getUsers = async () => {
-		setIsLoading(true);
-		const response = await fetch("https://jsonplaceholder.typicode.com/users");
+  const getUsers = async () => {
+    setIsLoading(true);
+    const response = await fetch("https://jsonplaceholder.typicode.com/users");
 
-		if (!response.ok) {
-			const message = `An error has occured: ${response.status}`;
-			throw new Error(message);
-		}
+    if (!response.ok) {
+      const message = `An error has occured: ${response.status}`;
+      throw new Error(message);
+    }
 
-		const data = await response.json();
-		const transformUsers = getTransformedUsers(data);
-		setInitialUsers(transformUsers);
-		setFilteredUsers(transformUsers);
-		setIsLoading(false);
-	};
+    const data = await response.json();
+    const transformUsers = getTransformedUsers(data);
+    setInitialUsers(transformUsers);
+    setFilteredUsers(transformUsers);
+    setIsLoading(false);
+  };
 
-	const getFilteredUsers = () => {
-		return initialUsers.filter((user) => {
-			const userNames = user.name.toLowerCase().split(" ");
-			const searchWord = searchValue.toLowerCase();
-			const matches = userNames.filter(
-				(word) => word.indexOf(searchWord) === 0,
-			);
+  const getFilteredUsers = () => {
+    return initialUsers.filter((user) => {
+      const userNames = user.name.toLowerCase().split(" ");
+      const searchWord = searchValue.toLowerCase();
+      const matches = userNames.filter(
+        (word) => word.indexOf(searchWord) === 0,
+      );
 
-			return matches.length > 0;
-		});
-	};
+      return matches.length > 0;
+    });
+  };
 
-	const getTransformedUsers = (users) => {
-		const getAddress = (address) => {
-			const { city, street, suite } = address;
-			return `${city}, ${street}, ${suite}`;
-		};
+  const getTransformedUsers = (users) => {
+    const getAddress = (address) => {
+      const { city, street, suite } = address;
+      return `${city}, ${street}, ${suite}`;
+    };
 
-		const transformedUsers = users.map((user) => ({
-			...user,
-			address: getAddress(user.address),
-			company: user.company.name,
-		}));
+    const transformedUsers = users.map((user) => ({
+      ...user,
+      address: getAddress(user.address),
+      company: user.company.name,
+    }));
 
-		return transformedUsers;
-	};
+    return transformedUsers;
+  };
 
-	const handleSortingChange = (accessor) => {
-		const sortOrder = getSortOrder(accessor);
-		setSortField(accessor);
-		setOrder(sortOrder);
-		handleSorting(accessor, sortOrder);
-	};
+  const handleSortingChange = (accessor) => {
+    const sortOrder = getSortOrder(accessor);
+    setSortField(accessor);
+    setOrder(sortOrder);
+    handleSorting(accessor, sortOrder);
+  };
 
-	const handleSorting = (sortField, sortOrder) => {
-		const sorted =
-			sortOrder !== DEFAULT
-				? [...filteredUsers].sort(
-						(a, b) =>
-							a[sortField].localeCompare(b[sortField], "en") *
-							(sortOrder === ASC ? 1 : -1),
-				  )
-				: getFilteredUsers();
+  const handleSorting = (sortField, sortOrder) => {
+    const sorted =
+      sortOrder !== DEFAULT
+        ? [...filteredUsers].sort(
+          (a, b) =>
+            a[sortField].localeCompare(b[sortField], "en") *
+            (sortOrder === ASC ? 1 : -1),
+        )
+        : getFilteredUsers();
 
-		setFilteredUsers(sorted);
-	};
+    setFilteredUsers(sorted);
+  };
 
-	const getSortOrder = (accessor) => {
-		const result =
-			sortField === accessor && order === ASC
-				? DESC
-				: sortField === accessor && order === DESC
-				? DEFAULT
-				: ASC;
+  const getSortOrder = (accessor) => {
+    const result = sortField === accessor && order === ASC
+      ? DESC
+      : sortField === accessor && order === DESC
+        ? DEFAULT
+        : ASC;
 
-		return result;
-	};
+    return result;
+  };
 
-	const getColumnClassName = (accessor) => {
-		const result =
-			sortField === accessor && order === ASC
-				? ASC
-				: sortField === accessor && order === DESC
-				? DESC
-				: DEFAULT;
+  const getColumnClassName = (accessor) => {
+    const result = sortField === accessor && order === ASC
+      ? ASC
+      : sortField === accessor && order === DESC
+        ? DESC
+        : DEFAULT;
 
-		return result;
-	};
+    return result;
+  };
 
-	return (
-		<S.Container>
-			<S.Header>
-				{tableColumns.map((column) => (
-					<S.Ceil
-						key={column.label}
-						onClick={() => {
-							handleSortingChange(column.accessor);
-						}}
-					>
-						<S.Line>{column.label}</S.Line>
-						<S.Arrow className={getColumnClassName(column.accessor)} />
-					</S.Ceil>
-				))}
-			</S.Header>
-			<S.Content>
-				{isLoading ? (
-					<S.LoaderWrapper>
-						<BeatLoader color="#36d7b7" />
-					</S.LoaderWrapper>
-				) : (
-					<>
-						{filteredUsers.map((user) => (
-							<Row user={user} key={user.id} />
-						))}
-					</>
-				)}
-			</S.Content>
-			<S.Count>
-				<S.LineCount>Итого: {filteredUsers.length}</S.LineCount>
-			</S.Count>
-		</S.Container>
-	);
+  return (
+    <S.Container>
+      <S.Header>
+        {tableColumns.map((column) => (
+          <S.Ceil
+            key={column.label}
+            onClick={() => {
+              handleSortingChange(column.accessor);
+            }}
+          >
+            <S.Line>{column.label}</S.Line>
+            <S.Arrow className={getColumnClassName(column.accessor)} />
+          </S.Ceil>
+        ))}
+      </S.Header>
+      <S.Content>
+        {isLoading ? (
+          <S.LoaderWrapper>
+            <BeatLoader color="#36d7b7" />
+          </S.LoaderWrapper>
+        ) : (
+          <>
+            {filteredUsers.map((user) => (
+              <Row user={user} key={user.id} />
+            ))}
+          </>
+        )}
+      </S.Content>
+      <S.Count>
+        <S.LineCount>Итого: {filteredUsers.length}</S.LineCount>
+      </S.Count>
+    </S.Container>
+  );
 };
 
 export default Table;
