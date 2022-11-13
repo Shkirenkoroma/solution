@@ -66,10 +66,10 @@ const Table = ({ searchValue }) => {
     const sortOrder = getSortOrder(accessor);
     setSortField(accessor);
     setOrder(sortOrder);
-    handleSorting(accessor, sortOrder);
+    setSortingUsers(accessor, sortOrder);
   };
 
-  const handleSorting = (sortField, sortOrder) => {
+  const setSortingUsers = (sortField, sortOrder) => {
     const sorted =
       sortOrder !== DEFAULT
         ? [...filteredUsers].sort(
