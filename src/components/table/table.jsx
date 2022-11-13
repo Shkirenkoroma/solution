@@ -41,11 +41,9 @@ const Table = ({ searchValue }) => {
     return initialUsers.filter((user) => {
       const userNames = user.name.toLowerCase().split(" ");
       const searchWord = searchValue.toLowerCase();
-      const matches = userNames.filter(
-        (word) => word.indexOf(searchWord) === 0,
-      );
+      const isHasMatches = userNames.some(word => word.startsWith(searchWord));
 
-      return matches.length > 0;
+      return isHasMatches;
     });
   };
 
