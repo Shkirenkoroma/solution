@@ -1,4 +1,5 @@
-### Live-версия проекта доступна по ссылке https://shkirenkoroma.github.io/solution/
+#### Live-версия проекта доступна по ссылке: https://shkirenkoroma.github.io/solution/
+
 Список получается путем загрузки json-файла через запрос и дальнейший рендеринг их в самой таблице 
 ![image](https://user-images.githubusercontent.com/61347452/228741231-3158cb02-1f3e-4958-88ee-8dfb795a2308.png)
 Реализована функция фильтрации списка
